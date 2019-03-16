@@ -21,7 +21,7 @@ import { Root } from "native-base";
 import { Font, AppLoading } from "expo";
 import { Dropdown } from "react-native-material-dropdown";
 
-export default class FetchExample extends React.Component {
+export default class SendFeedback extends React.Component {
   constructor(props) {
     super(props);
     this.onChangeText = this.onChangeText.bind(this);
