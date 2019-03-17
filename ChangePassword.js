@@ -39,9 +39,10 @@ export default class ChangePassword extends Component {
 
   changePassword(userToken, currentPassword, newPassword, confirmPassword) {
     if (
-      this.state.current_password != null ||
-      this.state.new_password != null ||
-      this.state.confirm_password != null
+      this.state.current_password != null &&
+      this.state.new_password != null &&
+      this.state.confirm_password != null ||
+      this.state.currentPassword == this.state.newPassword
     ) {
       const formBody1 = "token=";
       const formBody2 = userToken;
@@ -98,7 +99,7 @@ export default class ChangePassword extends Component {
     } else {
       Alert.alert(
         " Error !",
-        " Please fill in the form fully. ",
+        " Please fill in the form fully and please check if current password is equal to new password. ",
         [
           {
             text: "OK",

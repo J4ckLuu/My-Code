@@ -64,7 +64,7 @@ export default class SendFeedback extends React.Component {
   };
 
   postFeedback(userToken, title, content, to_id, category) {
-    if (this.state.title != null || this.state.content != null) {
+    if (this.state.title != null && this.state.content != null) {
       const formBody1 = "token=";
       const formBody2 = userToken;
       const formBody3 = "&title=";
