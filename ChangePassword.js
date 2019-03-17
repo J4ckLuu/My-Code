@@ -73,7 +73,7 @@ export default class ChangePassword extends Component {
       )
         .then(response => response.json())
         .then(res => {
-          if (typeof res.message != "undefined") {
+          if (typeof res.success != "undefined") {
             console.log(res.message);
           } else {
             console.log("Success");
