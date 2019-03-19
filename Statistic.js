@@ -1,21 +1,28 @@
-import React from "react";
-import { FlatList, ActivityIndicator, AsyncStorage, View } from "react-native";
+import React, { Component } from "react";
 import {
-  Container,
-  Content,
-  Button,
-  Card,
-  CardItem,
+  AppRegistry,
+  ListView,
   Text,
-  Body
-} from "native-base";
+  View,
+  AsyncStorage,
+  Button
+} from "react-native";
 
-export default class FetchExample extends React.Component {
+var REQUEST_URL =
+  "http://deployattendancemanagement.herokuapp.com/api/attendance/list-by-student";
+
+export default class WPReact extends Component {
   constructor(props) {
     super(props);
     this.state = {
       userToken: "",
-      userID: ""
+      userID: "",
+      //Lets initialize results with the same struct we expect to receive from the api
+      results: {
+        result: "",
+        total_items: "",
+        attendance_list_by_student: []
+      }
     };
   }
 
@@ -42,75 +49,50 @@ export default class FetchExample extends React.Component {
     this.getUserID();
   }
 
-  fetch(userToken, userID) {
+  fetchData(userToken, userID) {
     const formBody1 = "token=";
     const formBody2 = userToken;
     const formBody3 = "&student_id=";
     const formBody4 = userID;
     const formBody = formBody1.concat("", formBody2, formBody3, formBody4);
-    fetch(
-      "http://deployattendancemanagement.herokuapp.com/api/attendance/list-by-student",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: formBody
-      }
-    )
+    fetch(REQUEST_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: formBody
+    })
       .then(response => response.json())
-      .then(responseJson => {
-        if (typeof responseJson.message != "undefined") {
-          console.log("Error", "Error: " + responseJson.message);
+      .then(responseData => {
+        if (typeof responseData.message != "undefined") {
+          console.log(responseData.message);
         } else {
-          console.log("Hello");
-          this.setState(
-            {
-              isLoading: false,
-              dataSource: responseJson.attendance_list_by_student
-            },
-            function() {}
-          );
+          console.log(responseData);
+          this.setState({
+            results: responseData
+          });
         }
       })
-      .catch(error => {
-        console.error(error);
-      });
+      .done();
   }
+
   render() {
+    //this.state.results.movies is the array you have to iterate
+    contents = this.state.results.attendance_list_by_student.map(item => {
+      //We need to return the corresponding mapping for each item too.
+      return (
+        <View style={{padding:10}}>
+          <Text> {item.code} </Text>
+          <Text> {item.name} </Text>
+          <Text> total_stu: 11 | attendance_count: {item.attendance_count} | percentage: {((item.attendance_count/11)*100).toFixed(2)} % </Text>
+        </View>
+      );
+    });
     return (
-      <Container>
-        <Content>
-          <View style={{ flex: 1, paddingTop: 20 }}>
-            <Card>
-              <CardItem>
-                <Body>
-                  <FlatList
-                    data={this.state.dataSource}
-                    renderItem={({ item }) => (
-                      <Text>
-                        {item.code}
-                        {item.name}
-                      </Text>
-                    )}
-                    keyExtractor={({ id }, index) => id}
-                  />
-                </Body>
-              </CardItem>
-            </Card>
-          </View>
-          <View style={{ flex: 1, paddingTop: 20 }}>
-            <Button
-              full
-              onPress={() =>
-                this.fetch(this.state.userToken, this.state.userID)
-              }
-            >
-              <Text>Primary</Text>
-            </Button>
-          </View>
-        </Content>
-      </Container>
+      <View>
+        <View>{contents}</View>
+        <Button onPress={() => this.fetchData(this.state.userToken, this.state.userID)} title="Learn More" />
+      </View>
     );
   }
 }
