@@ -71,6 +71,25 @@ export default class AbsenceRequest extends React.Component {
     }
   };
 
+  dateFormat(date) {
+    var str = date.toString().slice(4, 14);
+    var array = str.split(' ');
+    if(array[0] == "Jun") { array[0] = "01"; }
+    else if (array[0] == "Feb") { array[0] = "02"; }
+    else if (array[0] == "Mar") { array[0] = "03"; }
+    else if (array[0] == "Apr") { array[0] = "04"; }
+    else if (array[0] == "May") { array[0] = "05"; }
+    else if (array[0] == "Jun") { array[0] = "06"; }
+    else if (array[0] == "Jul") { array[0] = "07"; }
+    else if (array[0] == "Aug") { array[0] = "08"; }
+    else if (array[0] == "Sep") { array[0] = "09"; }
+    else if (array[0] == "Oct") { array[0] = "10"; }
+    else if (array[0] == "Nov") { array[0] = "11"; }
+    else if (array[0] == "Dec") { array[0] = "12"; }
+    var d = array.join("/");
+    return d;
+  };
+
   submit(userToken, userID, reason, selectedStartDate, selectedEndDate) {
     if (this.state.reason != null) {
       const formBody1 = "token=";
@@ -80,9 +99,11 @@ export default class AbsenceRequest extends React.Component {
       const formBody5 = "&reason=";
       const formBody6 = reason;
       const formBody7 = "&start_date=";
-      const formBody8 = selectedStartDate;
+      var formBody8 = this.dateFormat(selectedStartDate);
+      console.log(formBody8);
       const formBody9 = "&end_date=";
-      const formBody10 = selectedEndDate;
+      var formBody10 = this.dateFormat(selectedEndDate);
+      console.log(formBody10);
       const formBody = formBody1.concat(
         "",
         formBody2,
@@ -161,9 +182,6 @@ export default class AbsenceRequest extends React.Component {
     const { selectedStartDate, selectedEndDate } = this.state;
     const minDate = new Date(); // Today
     const maxDate = new Date(2020, 1, 1);
-
-    const startDate = selectedStartDate ? selectedStartDate.toString() : null;
-    const endDate = selectedEndDate ? selectedEndDate.toString() : null;
 
     return (
       <Container>
