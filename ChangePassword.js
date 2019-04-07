@@ -1,29 +1,58 @@
-import React, { Component } from "react";
-import { View, Alert, AsyncStorage } from "react-native";
+import React from "react";
 import {
-  Container,
-  Header,
-  Content,
-  Input,
-  Item,
-  Text,
-  Button,
-  Root
-} from "native-base";
-import { Font, AppLoading } from "expo";
+  FlatList,
+  ActivityIndicator,
+  StyleSheet,
+  View,
+  AsyncStorage,
+  TouchableOpacity
+} from "react-native";
+import { Thumbnail, Text, Button } from "native-base";
+import { Header, Left, Body, Right, Icon } from "native-base";
+import Dialog from "react-native-dialog";
 
-export default class ChangePassword extends Component {
+
+export default class Profile extends React.Component {
+  static navigationOptions = { header: null };
   constructor(props) {
     super(props);
     this.state = {
+      userRoleID: "",
+      ufirstN: "",
+      ulastN: "",
+      uphone: "",
+      uemail: "",
+      uavatar: "http://i.imgur.com/FTa2JWD.png",
       isLoading: true,
       userToken: "",
       current_password: null,
       new_password: null,
-      confirm_password: null
+      confirm_password: null,
+      dialogVisible: false
     };
   }
 
+  showDialog = () => {
+    this.setState({ dialogVisible: true });
+  };
+
+  componentWillMount() {
+    this.getRoleID();
+    this.getAvatar();
+    this.getFirstN();
+    this.getLastN();
+    this.getPhone();
+    this.getEmail();
+    this.getToken();
+  }
+  getRoleID = async () => {
+    try {
+      const value = await AsyncStorage.getItem("roleID");
+      this.setState({ userRoleID: JSON.stringify(value) });
+    } catch (error) {
+      console.log("Error retrieving role ID" + error);
+    }
+  };
   getToken = async () => {
     try {
       const value = await AsyncStorage.getItem("token");
@@ -32,16 +61,51 @@ export default class ChangePassword extends Component {
       console.log("Error retrieving data" + error);
     }
   };
-
-  componentWillMount() {
-    this.getToken();
-  }
-
+  getFirstN = async () => {
+    try {
+      const value = await AsyncStorage.getItem("firstN");
+      this.setState({ ufirstN: JSON.parse(value) });
+    } catch (error) {
+      console.log("Error retrieving 1stN" + error);
+    }
+  };
+  getLastN = async () => {
+    try {
+      const value = await AsyncStorage.getItem("lastN");
+      this.setState({ ulastN: JSON.parse(value) });
+    } catch (error) {
+      console.log("Error retrieving lN" + error);
+    }
+  };
+  getAvatar = async () => {
+    try {
+      const value = await AsyncStorage.getItem("avatar");
+      this.setState({ uavatar: JSON.parse(value) });
+    } catch (error) {
+      console.log("Error retrieving ava" + error);
+    }
+  };
+  getPhone = async () => {
+    try {
+      const value = await AsyncStorage.getItem("phone");
+      this.setState({ uphone: JSON.parse(value) });
+    } catch (error) {
+      console.log("Error retrieving ava" + error);
+    }
+  };
+  getEmail = async () => {
+    try {
+      const value = await AsyncStorage.getItem("email");
+      this.setState({ uemail: JSON.parse(value) });
+    } catch (error) {
+      console.log("Error retrieving ava" + error);
+    }
+  };
   changePassword(userToken, currentPassword, newPassword, confirmPassword) {
     if (
-      this.state.current_password != null &&
-      this.state.new_password != null &&
-      this.state.confirm_password != null ||
+      (this.state.current_password != null &&
+        this.state.new_password != null &&
+        this.state.confirm_password != null) ||
       this.state.currentPassword == this.state.newPassword
     ) {
       const formBody1 = "token=";
@@ -78,18 +142,7 @@ export default class ChangePassword extends Component {
             console.log(res.message);
           } else {
             console.log("Success");
-            Alert.alert(
-              "Success",
-              "You have successfully changed your password",
-              [
-                {
-                  text: "OK",
-                  onPress: () => console.log(res.message),
-                  style: "cancel"
-                }
-              ],
-              { cancelable: false }
-            );
+            alert("You have successfully changed your password");
           }
         })
         .catch(error => {
@@ -97,17 +150,8 @@ export default class ChangePassword extends Component {
         })
         .done();
     } else {
-      Alert.alert(
-        " Error !",
-        " Please fill in the form fully and please check if current password is equal to new password. ",
-        [
-          {
-            text: "OK",
-            onPress: () => console.log("Cancel"),
-            style: "cancel"
-          }
-        ],
-        { cancelable: false }
+      alert(
+        " Please fill in the form fully and please check if current password is equal to new password. "
       );
     }
   }
@@ -121,63 +165,112 @@ export default class ChangePassword extends Component {
       this.setState({ confirm_password: text });
     }
   }
-
   render() {
-    if (this.state.loading) {
-      return (
-        <Root>
-          <AppLoading />
-        </Root>
-      );
-    }
-
     return (
-      <Container>
-        <Content>
-          <View style={{ padding: 10 }}>
-            <Item regular>
-              <Input
-                placeholder="current_password"
-                onChangeText={text => this.updateValue(text, "currentPassword")}
-              />
-            </Item>
-          </View>
-
-          <View style={{ padding: 10 }}>
-            <Item regular>
-              <Input
-                placeholder="new_password"
-                onChangeText={text => this.updateValue(text, "newPassword")}
-              />
-            </Item>
-          </View>
-
-          <View style={{ padding: 10 }}>
-            <Item regular>
-              <Input
-                placeholder="confirm_password"
-                onChangeText={text => this.updateValue(text, "confirmPassword")}
-              />
-            </Item>
-          </View>
-
-          <View style={{ padding: 10 }}>
-            <Button
-              full
-              onPress={() =>
-                this.changePassword(
-                  this.state.userToken,
-                  this.state.current_password,
-                  this.state.new_password,
-                  this.state.confirm_password
-                )
-              }
+      <View style={styles.container}>
+        <Header
+          style={{
+            height: 70,
+            alignItems: "flex-end",
+            justifyContent: "flex-start",
+            backgroundColor: "dodgerblue"
+          }}
+        >
+          <Left style={{ alignSelf: "flex-end", marginBottom: 10 }}>
+            <TouchableOpacity
+              activeOpacity={0.5}
+              onPress={() => this.props.navigation.goBack()}
             >
-              <Text> Change password </Text>
-            </Button>
-          </View>
-        </Content>
-      </Container>
+              <Icon name="arrow-back" />
+            </TouchableOpacity>
+          </Left>
+          <Body
+            style={{
+              alignSelf: "flex-end",
+              justifyContent: "center",
+              marginBottom: 12
+            }}
+          >
+            <Text style={{ fontSize: 20, fontWeight: "bold" }}>Profile</Text>
+          </Body>
+          <Right />
+        </Header>
+
+        <View style={styles.thumbnail}>
+          <Thumbnail large source={{ uri: this.state.uavatar }} />
+        </View>
+
+        <FlatList
+          data={[
+            {
+              firstName: this.state.ufirstN,
+              lastName: this.state.ulastN,
+              email: this.state.uemail,
+              phoneNo: this.state.uphone
+            }
+          ]}
+          keyExtractor={item => item.email}
+          renderItem={({ item }) => (
+            <View>
+              <Text style={{ padding: 10, color: "gray" }}>First name</Text>
+              <Text style={{ padding: 10 }}>{item.firstName}</Text>
+              <Text style={{ padding: 10, color: "gray" }}>Last name</Text>
+              <Text style={{ padding: 10 }}>{item.lastName}</Text>
+              <Text style={{ padding: 10, color: "gray" }}>Email</Text>
+              <Text style={{ padding: 10 }}>{item.email}</Text>
+              <Text style={{ padding: 10, color: "gray" }}>PhoneNumber</Text>
+              <Text style={{ padding: 10 }}>{item.phoneNo}</Text>
+              <View style={{ padding: 10 }}>
+                <TouchableOpacity onPress={this.showDialog}>
+                  <Text>Show Dialog</Text>
+                </TouchableOpacity>
+                <Dialog.Container visible={this.state.dialogVisible}>
+                  <Dialog.Title>Change password</Dialog.Title>
+                  <Dialog.Input
+                    onChangeText={text =>
+                      this.updateValue(text, "currentPassword")
+                    }
+                  />
+
+                  <Dialog.Input
+                    onChangeText={text => this.updateValue(text, "newPassword")}
+                  />
+
+                  <Dialog.Input
+                    onChangeText={text =>
+                      this.updateValue(text, "confirmPassword")
+                    }
+                  />
+                  <Dialog.Button
+                    label="ChangePassword"
+                    onPress={() =>
+                      this.changePassword(
+                        this.state.userToken,
+                        this.state.current_password,
+                        this.state.new_password,
+                        this.state.confirm_password
+                      )
+                    }
+                  />
+                </Dialog.Container>
+              </View>
+            </View>
+          )}
+        />
+      </View>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "#f2f2f2",
+    flex: 1,
+    justifyContent: "center"
+  },
+  thumbnail: {
+    alignItems: "center",
+    backgroundColor: "skyblue",
+    padding: 10
+  }
+});

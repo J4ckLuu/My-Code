@@ -17,7 +17,6 @@ export default class WPReact extends Component {
     this.state = {
       userToken: "",
       userID: "",
-      //Lets initialize results with the same struct we expect to receive from the api
       results: {
         result: "",
         total_items: "",
@@ -77,9 +76,7 @@ export default class WPReact extends Component {
   }
 
   render() {
-    //this.state.results.movies is the array you have to iterate
     contents = this.state.results.attendance_list_by_student.map(item => {
-      //We need to return the corresponding mapping for each item too.
       return (
         <View style={{padding:10}}>
           <Text> {item.code} </Text>
