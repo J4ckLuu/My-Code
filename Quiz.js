@@ -186,12 +186,12 @@ export default class App extends React.Component {
         this.state.count == this.state.results.questions.length
       ) {
         this.setQuiz();
+        console.log(this.state.results);
         // this.save(
         //   this.state.userToken,
         //   this.state.results,
         //   this.state.results.class_has_course_id
         // );
-        console.log(this.state.results);
       } else {
         alert("Push failed");
       }
